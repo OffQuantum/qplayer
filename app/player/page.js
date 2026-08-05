@@ -28,6 +28,7 @@ function PlayerContent() {
   const [error, setError] = useState('');
   const [metadata, setMetadata] = useState(null);
   const [streamUrl, setStreamUrl] = useState('');
+  const [directUrl, setDirectUrl] = useState('');
   const [externalPlayer, setExternalPlayer] = useState(null);
 
   useEffect(() => {
@@ -73,6 +74,11 @@ function PlayerContent() {
 
         const url = getStreamUrl(account.server, account.username, account.password, type, streamId, ext);
         setStreamUrl(url);
+        
+        // Asıl IPTV sunucusu üzerinden direkt indirme linki (Proxy'yi Bypass Etmek İçin)
+        const rawUrl = url.replace(account.server, 'http://vip.psmarters.xyz:8080');
+        setDirectUrl(rawUrl);
+
         const video = videoRef.current;
 
         if (type === 'live' && ext === 'ts') {
@@ -170,10 +176,10 @@ function PlayerContent() {
         <button className={styles.backButton} onClick={() => router.back()}>
           <ArrowLeft size={20} /> Back
         </button>
-        {streamUrl && !externalPlayer && (
+        {directUrl && !externalPlayer && (
           <div className={styles.externalPlayers}>
-            <a href={`vlc://${streamUrl}`} onClick={() => setExternalPlayer('VLC')} className={styles.extBtn}>VLC ile Aç</a>
-            <a href={`iina://weblink?url=${streamUrl}`} onClick={() => setExternalPlayer('IINA')} className={styles.extBtn}>IINA (Mac) ile Aç</a>
+            <a href={`vlc://${directUrl}`} onClick={() => setExternalPlayer('VLC')} className={styles.extBtn}>VLC ile Aç</a>
+            <a href={`iina://weblink?url=${directUrl}`} onClick={() => setExternalPlayer('IINA')} className={styles.extBtn}>IINA (Mac) ile Aç</a>
           </div>
         )}
       </div>
@@ -185,7 +191,7 @@ function PlayerContent() {
         <div className={styles.externalPlayerMessage}>
           <h2>Bu medya {externalPlayer} ile oynatılıyor</h2>
           <p>Harici oynatıcı uygulamanız açılmış olmalı.</p>
-          <a href={externalPlayer === 'VLC' ? `vlc://${streamUrl}` : `iina://weblink?url=${streamUrl}`} className={styles.extBtn}>
+          <a href={externalPlayer === 'VLC' ? `vlc://${directUrl}` : `iina://weblink?url=${directUrl}`} className={styles.extBtn}>
             Açılmadı mı? Tekrar Dene
           </a>
           <button onClick={() => setExternalPlayer(null)} className={styles.extBtn} style={{marginTop: '10px', background: 'transparent', border: '1px solid white'}}>
