@@ -15,15 +15,47 @@ export default function Home() {
   const router = useRouter();
 
   useEffect(() => {
-    const saved = localStorage.getItem('xtream_accounts');
-    if (saved) {
-      setAccounts(JSON.parse(saved));
-    }
+    const fetchSync = async () => {
+      try {
+        const res = await fetch('/api/user/sync');
+        if (res.ok) {
+          const data = await res.json();
+          if (data.accounts && Array.isArray(data.accounts)) {
+            setAccounts(data.accounts);
+            localStorage.setItem('xtream_accounts', JSON.stringify(data.accounts));
+          }
+          if (data.progress && Object.keys(data.progress).length > 0) {
+            // Sadece lokalde veri yoksa veya sunucudaki daha güncelse üzerine yaz
+            // Basitlik adina simdilik sunucuyu dogru kabul ediyoruz
+            localStorage.setItem('xtream_progress', JSON.stringify(data.progress));
+          }
+          return;
+        }
+      } catch (e) {
+        console.error('Sync failed', e);
+      }
+      
+      const saved = localStorage.getItem('xtream_accounts');
+      if (saved) {
+        setAccounts(JSON.parse(saved));
+      }
+    };
+    fetchSync();
   }, []);
 
-  const saveAccounts = (newAccounts) => {
+  const saveAccounts = async (newAccounts) => {
     setAccounts(newAccounts);
     localStorage.setItem('xtream_accounts', JSON.stringify(newAccounts));
+    
+    try {
+      await fetch('/api/user/sync', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type: 'accounts', data: newAccounts })
+      });
+    } catch (e) {
+      console.error('Sync POST failed', e);
+    }
   };
 
   const [formData, setFormData] = useState({

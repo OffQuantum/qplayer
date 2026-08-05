@@ -1,3 +1,17 @@
+let lastSyncTime = 0;
+
+async function syncProgressToBackend(progressData) {
+  try {
+    await fetch('/api/user/sync', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ type: 'progress', data: progressData })
+    });
+  } catch (e) {
+    console.error('Progress sync failed', e);
+  }
+}
+
 export function saveProgress(streamId, type, time, duration, metadata) {
   if (time < 10) return; // Don't save if watched less than 10 seconds
   
@@ -26,6 +40,12 @@ export function saveProgress(streamId, type, time, duration, metadata) {
   const allProgress = getAllProgress();
   allProgress[streamId] = progressData;
   localStorage.setItem('xtream_progress', JSON.stringify(allProgress));
+  
+  const now = Date.now();
+  if (now - lastSyncTime > 30000) { // Her 30 saniyede bir arkadan senkronize et
+    lastSyncTime = now;
+    syncProgressToBackend(allProgress);
+  }
 }
 
 export function getProgress(streamId) {
@@ -52,5 +72,6 @@ export function removeProgress(streamId) {
   if (allProgress[streamId]) {
     delete allProgress[streamId];
     localStorage.setItem('xtream_progress', JSON.stringify(allProgress));
+    syncProgressToBackend(allProgress);
   }
 }
