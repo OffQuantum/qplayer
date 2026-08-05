@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { ArrowLeft } from 'lucide-react';
 import Hls from 'hls.js';
@@ -9,6 +9,14 @@ import { saveProgress, getProgress } from '@/utils/progress';
 import styles from './page.module.css';
 
 export default function Player() {
+  return (
+    <Suspense fallback={<div className={styles.container}><div className={styles.loading}>Loading...</div></div>}>
+      <PlayerContent />
+    </Suspense>
+  );
+}
+
+function PlayerContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const videoRef = useRef(null);

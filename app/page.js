@@ -145,9 +145,9 @@ export default function Home() {
         
         <div className={`${styles.profileCard} ${styles.addProfile}`} onClick={() => setIsAdding(true)}>
           <div className={styles.avatar}>
-            <Plus size={64} color="#B3B3B3" />
+            <PlusCircle size={64} color="#B3B3B3" />
           </div>
-          <span className={styles.profileName}>Add Profile</span>
+          <span className={styles.profileName}>{t.addProfile}</span>
         </div>
       </div>
     </div>
