@@ -28,6 +28,7 @@ function PlayerContent() {
   const [error, setError] = useState('');
   const [metadata, setMetadata] = useState(null);
   const [streamUrl, setStreamUrl] = useState('');
+  const [externalPlayer, setExternalPlayer] = useState(null);
 
   useEffect(() => {
     if (!streamId || !type) {
@@ -169,23 +170,36 @@ function PlayerContent() {
         <button className={styles.backButton} onClick={() => router.back()}>
           <ArrowLeft size={20} /> Back
         </button>
-        {streamUrl && (
+        {streamUrl && !externalPlayer && (
           <div className={styles.externalPlayers}>
-            <a href={`vlc://${streamUrl}`} className={styles.extBtn}>VLC ile Aç</a>
-            <a href={`iina://weblink?url=${streamUrl}`} className={styles.extBtn}>IINA (Mac) ile Aç</a>
+            <a href={`vlc://${streamUrl}`} onClick={() => setExternalPlayer('VLC')} className={styles.extBtn}>VLC ile Aç</a>
+            <a href={`iina://weblink?url=${streamUrl}`} onClick={() => setExternalPlayer('IINA')} className={styles.extBtn}>IINA (Mac) ile Aç</a>
           </div>
         )}
       </div>
       
-      {loading && <div className={styles.loading}>Loading Stream...</div>}
-      {error && <div className={styles.loading}>{error}</div>}
+      {loading && !externalPlayer && <div className={styles.loading}>Loading Stream...</div>}
+      {error && !externalPlayer && <div className={styles.loading}>{error}</div>}
+
+      {externalPlayer && (
+        <div className={styles.externalPlayerMessage}>
+          <h2>Bu medya {externalPlayer} ile oynatılıyor</h2>
+          <p>Harici oynatıcı uygulamanız açılmış olmalı.</p>
+          <a href={externalPlayer === 'VLC' ? `vlc://${streamUrl}` : `iina://weblink?url=${streamUrl}`} className={styles.extBtn}>
+            Açılmadı mı? Tekrar Dene
+          </a>
+          <button onClick={() => setExternalPlayer(null)} className={styles.extBtn} style={{marginTop: '10px', background: 'transparent', border: '1px solid white'}}>
+            Web Oynatıcıya Dön
+          </button>
+        </div>
+      )}
       
       <video
         ref={videoRef}
         className={styles.video}
         controls
         onTimeUpdate={handleTimeUpdate}
-        style={{ display: (loading || error) ? 'none' : 'block' }}
+        style={{ display: (loading || error || externalPlayer) ? 'none' : 'block' }}
       />
     </div>
   );
