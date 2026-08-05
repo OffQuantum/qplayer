@@ -13,10 +13,11 @@ export async function fetchXtream(server, username, password, action = '', param
     targetUrl.searchParams.append(key, value);
   }
 
-  const proxyUrl = new URL('/api/proxy', window.location.origin);
-  proxyUrl.searchParams.append('url', targetUrl.toString());
+  const encodedUrl = encodeURIComponent(targetUrl.toString());
+  // Use a public CORS proxy instead of Vercel API
+  const proxyUrl = `https://api.allorigins.win/raw?url=${encodedUrl}`;
 
-  const response = await fetch(proxyUrl.toString());
+  const response = await fetch(proxyUrl);
   if (!response.ok) {
     throw new Error('Failed to fetch data from Xtream API');
   }
@@ -34,7 +35,7 @@ export function getStreamUrl(server, username, password, type, streamId, extensi
     
     // Proxy the live stream to bypass CORS/401/407 provider blocking
     if (typeof window !== 'undefined') {
-      return `/api/proxy?url=${encodeURIComponent(url)}`;
+      return `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
     }
     return url;
   } else if (type === 'movie') {
