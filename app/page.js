@@ -1,69 +1,155 @@
-import Image from "next/image";
-import styles from "./page.module.css";
+"use client";
+
+import { useState, useEffect } from 'react';
+import { fetchXtream } from '@/utils/xtream';
+import { PlusCircle, User, Trash2 } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { t } from '@/utils/lang';
+import styles from './page.module.css';
 
 export default function Home() {
-  return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className={styles.intro}>
-          <h1>
-            To get started, edit the{" "}
-            <code className={styles.code}>page.js</code> file.
-          </h1>
-          <p>
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className={styles.logo}
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
+  const [accounts, setAccounts] = useState([]);
+  const [isAdding, setIsAdding] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const router = useRouter();
+
+  useEffect(() => {
+    const saved = localStorage.getItem('xtream_accounts');
+    if (saved) {
+      setAccounts(JSON.parse(saved));
+    }
+  }, []);
+
+  const saveAccounts = (newAccounts) => {
+    setAccounts(newAccounts);
+    localStorage.setItem('xtream_accounts', JSON.stringify(newAccounts));
+  };
+
+  const [formData, setFormData] = useState({
+    name: '',
+    server: '',
+    username: '',
+    password: ''
+  });
+
+  const handleAddAccount = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
+    
+    try {
+      const data = await fetchXtream(formData.server, formData.username, formData.password);
+      if (data && data.user_info && data.user_info.auth === 1) {
+        const newAccount = {
+          id: Date.now().toString(),
+          name: formData.name || data.user_info.username,
+          server: formData.server,
+          username: formData.username,
+          password: formData.password,
+          status: data.user_info.status,
+          exp_date: data.user_info.exp_date
+        };
+        saveAccounts([...accounts, newAccount]);
+        setIsAdding(false);
+        setFormData({ name: '', server: '', username: '', password: '' });
+      } else {
+        setError(t.invalidCreds);
+      }
+    } catch (err) {
+      setError(t.invalidCreds);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSelectAccount = (account) => {
+    localStorage.setItem('active_account', JSON.stringify(account));
+    router.push('/dashboard');
+  };
+
+  const handleDeleteAccount = (e, id) => {
+    e.stopPropagation();
+    saveAccounts(accounts.filter(a => a.id !== id));
+  };
+
+  if (isAdding) {
+    return (
+      <div className={styles.container}>
+        <div className={`glass-panel ${styles.formContainer}`}>
+          <h1 className={styles.formTitle}>{t.addAccount}</h1>
+          {error && <div className={styles.error}>{error}</div>}
+          <form onSubmit={handleAddAccount} className="flex flex-col">
+            <input
+              type="text"
+              placeholder={t.profileName}
+              className="input-field"
+              value={formData.name}
+              onChange={e => setFormData({...formData, name: e.target.value})}
             />
-            Deploy Now
-          </a>
-          <a
-            className={styles.secondary}
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+            <input
+              type="url"
+              required
+              placeholder={t.serverUrl}
+              className="input-field"
+              value={formData.server}
+              onChange={e => setFormData({...formData, server: e.target.value})}
+            />
+            <input
+              type="text"
+              required
+              placeholder={t.username}
+              className="input-field"
+              value={formData.username}
+              onChange={e => setFormData({...formData, username: e.target.value})}
+            />
+            <input
+              type="password"
+              required
+              placeholder={t.password}
+              className="input-field"
+              value={formData.password}
+              onChange={e => setFormData({...formData, password: e.target.value})}
+            />
+            <div className={styles.formActions}>
+              <button type="button" className="btn-secondary" onClick={() => setIsAdding(false)}>{t.cancel}</button>
+              <button type="submit" className="btn-primary" disabled={loading}>
+                {loading ? t.connecting : t.addAccountBtn}
+              </button>
+            </div>
+          </form>
         </div>
-      </main>
+      </div>
+    );
+  }
+
+  return (
+    <div className={styles.container}>
+      <h1 className={styles.title}>{t.whosWatching}</h1>
+      <div className={styles.profilesGrid}>
+        {accounts.map(account => (
+          <div key={account.id} className={styles.profileCard} onClick={() => handleSelectAccount(account)}>
+            <div className={styles.avatar}>
+              <User size={64} color="#B3B3B3" />
+              <button 
+                onClick={(e) => handleDeleteAccount(e, account.id)}
+                className={styles.deleteBtn}
+                title="Delete Profile"
+              >
+                <Trash2 size={20} color="white" />
+              </button>
+            </div>
+            <span className={styles.profileName}>{account.name}</span>
+          </div>
+        ))}
+        
+        <div className={`${styles.profileCard} ${styles.addProfile}`} onClick={() => setIsAdding(true)}>
+          <div className={styles.avatar}>
+            <Plus size={64} color="#B3B3B3" />
+          </div>
+          <span className={styles.profileName}>Add Profile</span>
+        </div>
+      </div>
     </div>
   );
 }

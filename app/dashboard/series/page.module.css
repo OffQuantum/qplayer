@@ -1,0 +1,46 @@
+.container { display: flex; height: calc(100vh - 4rem); }
+.sidebar { width: 250px; overflow-y: auto; border-right: 1px solid rgba(255, 255, 255, 0.1); padding-right: 1rem; }
+.categoryItem { padding: 10px 16px; cursor: pointer; border-radius: 8px; color: var(--text-secondary); transition: all var(--transition-speed); margin-bottom: 4px; }
+.categoryItem:hover { background-color: rgba(255, 255, 255, 0.1); color: white; }
+.categoryItem.active { background-color: var(--primary-color); color: white; }
+.content { flex: 1; padding-left: 2rem; overflow-y: auto; position: relative; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 1.5rem; }
+.card { background: rgba(255, 255, 255, 0.05); border-radius: 8px; overflow: hidden; cursor: pointer; transition: transform var(--transition-speed); }
+.card:hover { transform: scale(1.05); }
+.cover { width: 100%; aspect-ratio: 2 / 3; background-color: #333; object-fit: cover; }
+.title { padding: 12px; font-size: 0.9rem; font-weight: 600; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* Episodes overlay */
+.overlay {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: var(--bg-color);
+  padding: 2rem;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+}
+.backBtn {
+  display: inline-block;
+  margin-bottom: 1rem;
+  color: var(--primary-color);
+  cursor: pointer;
+  font-weight: 600;
+}
+.episodesList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  overflow-y: auto;
+}
+.episodeItem {
+  display: flex;
+  justify-content: space-between;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  cursor: pointer;
+}
+.episodeItem:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
