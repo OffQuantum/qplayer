@@ -14,7 +14,14 @@ export async function fetchXtream(server, username, password, action = '', param
   }
 
   // Use corsfix proxy as requested
-  const proxyUrl = `https://proxy.corsfix.com/?${targetUrl.toString()}`;
+  const encodedUrl = encodeURIComponent(targetUrl.toString());
+  
+  // Use Cloudflare Worker Proxy if defined, otherwise fallback to local API
+  let proxyUrl = `/api/proxy?url=${encodedUrl}`;
+  if (process.env.NEXT_PUBLIC_CORS_PROXY) {
+    // If it's a proxy like https://my-worker.workers.dev/?
+    proxyUrl = `${process.env.NEXT_PUBLIC_CORS_PROXY}${encodedUrl}`;
+  }
 
   const response = await fetch(proxyUrl);
   if (!response.ok) {
@@ -34,7 +41,11 @@ export function getStreamUrl(server, username, password, type, streamId, extensi
     
     // Proxy the live stream to bypass CORS/401/407 provider blocking
     if (typeof window !== 'undefined') {
-      return `https://proxy.corsfix.com/?${url}`;
+      const encodedUrl = encodeURIComponent(url);
+      if (process.env.NEXT_PUBLIC_CORS_PROXY) {
+        return `${process.env.NEXT_PUBLIC_CORS_PROXY}${encodedUrl}`;
+      }
+      return `/api/proxy?url=${encodedUrl}`;
     }
     return url;
   } else if (type === 'movie') {
