@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server';
 
+export const runtime = 'edge';
+
 export async function GET(request) {
   const searchParams = request.nextUrl.searchParams;
   const targetUrl = searchParams.get('url');
