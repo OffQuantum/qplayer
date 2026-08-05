@@ -28,6 +28,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     },
   },
   pages: {
+    signIn: '/auth/signin',
     error: '/auth/error', // Hata olduğunda gösterilecek sayfa
   },
   secret: process.env.AUTH_SECRET,

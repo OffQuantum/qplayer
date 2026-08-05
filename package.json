@@ -9,6 +9,7 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@marsidev/react-turnstile": "^1.5.5",
     "hls.js": "^1.6.17",
     "lucide-react": "^1.28.0",
     "mpegts.js": "^1.8.0",
