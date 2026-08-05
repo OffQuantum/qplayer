@@ -26,6 +26,17 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       // Kullanıcı listede yoksa özel hata sayfasına yönlendirilir
       return "/auth/error?error=AccessDenied";
     },
+    authorized({ auth, request: { nextUrl } }) {
+      const isLoggedIn = !!auth?.user;
+      const isAuthPage = nextUrl.pathname.startsWith('/auth/signin');
+      
+      if (isAuthPage) {
+        if (isLoggedIn) return Response.redirect(new URL('/', nextUrl));
+        return true;
+      }
+
+      return isLoggedIn; // Giriş yapmadıysa otomatik olarak pages.signIn'e yönlendirir
+    },
   },
   pages: {
     signIn: '/auth/signin',
