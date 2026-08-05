@@ -75,9 +75,15 @@ function PlayerContent() {
         const url = getStreamUrl(account.server, account.username, account.password, type, streamId, ext);
         setStreamUrl(url);
         
-        // Asıl IPTV sunucusu üzerinden direkt indirme linki (Proxy'yi Bypass Etmek İçin)
         const rawUrl = url.replace(account.server, 'http://vip.psmarters.xyz:8080');
         setDirectUrl(rawUrl);
+
+        if (type !== 'live') {
+          // Filmler ve Diziler web tarayicilarinda AC3 ses destegi olmadigi ve mkv oynatamadigi icin zorunlu harici oynaticiya atilir
+          setExternalPlayer('REQUIRED');
+          setLoading(false);
+          return;
+        }
 
         const video = videoRef.current;
 
@@ -187,16 +193,29 @@ function PlayerContent() {
       {loading && !externalPlayer && <div className={styles.loading}>Loading Stream...</div>}
       {error && !externalPlayer && <div className={styles.loading}>{error}</div>}
 
-      {externalPlayer && (
+      {externalPlayer && externalPlayer === 'REQUIRED' && (
+        <div className={styles.externalPlayerMessage}>
+          <h2>Harici Oynatıcı Gerekiyor</h2>
+          <p>Filmler ve Diziler web tarayıcılarındaki ses kısıtlamaları (Dolby/AC3) ve MKV uyumsuzluğu nedeniyle yalnızca harici oynatıcılarda açılabilir.</p>
+          <div style={{display: 'flex', gap: '10px', marginTop: '10px'}}>
+            <a href={`vlc://${directUrl}`} onClick={() => setExternalPlayer('VLC')} className={styles.extBtn}>VLC ile Aç</a>
+            <a href={`iina://weblink?url=${directUrl}`} onClick={() => setExternalPlayer('IINA')} className={styles.extBtn}>IINA (Mac) ile Aç</a>
+          </div>
+        </div>
+      )}
+
+      {externalPlayer && externalPlayer !== 'REQUIRED' && (
         <div className={styles.externalPlayerMessage}>
           <h2>Bu medya {externalPlayer} ile oynatılıyor</h2>
           <p>Harici oynatıcı uygulamanız açılmış olmalı.</p>
           <a href={externalPlayer === 'VLC' ? `vlc://${directUrl}` : `iina://weblink?url=${directUrl}`} className={styles.extBtn}>
             Açılmadı mı? Tekrar Dene
           </a>
-          <button onClick={() => setExternalPlayer(null)} className={styles.extBtn} style={{marginTop: '10px', background: 'transparent', border: '1px solid white'}}>
-            Web Oynatıcıya Dön
-          </button>
+          {type === 'live' && (
+            <button onClick={() => setExternalPlayer(null)} className={styles.extBtn} style={{marginTop: '10px', background: 'transparent', border: '1px solid white'}}>
+              Web Oynatıcıya Dön
+            </button>
+          )}
         </div>
       )}
       
