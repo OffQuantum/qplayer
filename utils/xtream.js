@@ -13,10 +13,10 @@ export async function fetchXtream(server, username, password, action = '', param
     targetUrl.searchParams.append(key, value);
   }
 
-  const proxyUrl = new URL('/api/proxy', window.location.origin);
-  proxyUrl.searchParams.append('url', targetUrl.toString());
+  // Use corsfix proxy as requested
+  const proxyUrl = `https://proxy.corsfix.com/?${targetUrl.toString()}`;
 
-  const response = await fetch(proxyUrl.toString());
+  const response = await fetch(proxyUrl);
   if (!response.ok) {
     throw new Error('Failed to fetch data from Xtream API');
   }
@@ -34,7 +34,7 @@ export function getStreamUrl(server, username, password, type, streamId, extensi
     
     // Proxy the live stream to bypass CORS/401/407 provider blocking
     if (typeof window !== 'undefined') {
-      return `/api/proxy?url=${encodeURIComponent(url)}`;
+      return `https://proxy.corsfix.com/?${url}`;
     }
     return url;
   } else if (type === 'movie') {
