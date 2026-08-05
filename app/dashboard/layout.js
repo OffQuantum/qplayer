@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { Home, Tv, Film, PlaySquare, LogOut, User, Search } from 'lucide-react';
+import { signOut } from 'next-auth/react';
 import { t } from '@/utils/lang';
 import styles from './layout.module.css';
 
@@ -61,10 +62,17 @@ export default function DashboardLayout({ children }) {
           ))}
         </nav>
 
-        <button onClick={handleLogout} className={`${styles.navItem} ${styles.logout}`}>
-          <LogOut size={20} />
-          Switch Profile
-        </button>
+        <div style={{ marginTop: 'auto' }}>
+          <button onClick={handleLogout} className={`${styles.navItem} ${styles.logout}`}>
+            <LogOut size={20} />
+            {t.switchProfile}
+          </button>
+          
+          <button onClick={() => signOut()} className={`${styles.navItem} ${styles.logout}`} style={{ marginTop: '0.5rem', color: '#ff4d4f' }}>
+            <LogOut size={20} />
+            Güvenli Çıkış (Google)
+          </button>
+        </div>
       </aside>
       
       <main className={styles.mainContent}>
