@@ -27,6 +27,7 @@ function PlayerContent() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [metadata, setMetadata] = useState(null);
+  const [streamUrl, setStreamUrl] = useState('');
 
   useEffect(() => {
     if (!streamId || !type) {
@@ -70,6 +71,7 @@ function PlayerContent() {
         setMetadata(m);
 
         const url = getStreamUrl(account.server, account.username, account.password, type, streamId, ext);
+        setStreamUrl(url);
         const video = videoRef.current;
 
         if (type === 'live' && ext === 'ts') {
@@ -163,9 +165,17 @@ function PlayerContent() {
 
   return (
     <div className={styles.container}>
-      <button className={styles.backButton} onClick={() => router.back()}>
-        <ArrowLeft size={20} /> Back
-      </button>
+      <div className={styles.topBar}>
+        <button className={styles.backButton} onClick={() => router.back()}>
+          <ArrowLeft size={20} /> Back
+        </button>
+        {streamUrl && (
+          <div className={styles.externalPlayers}>
+            <a href={`vlc://${streamUrl}`} className={styles.extBtn}>VLC ile Aç</a>
+            <a href={`iina://weblink?url=${streamUrl}`} className={styles.extBtn}>IINA (Mac) ile Aç</a>
+          </div>
+        )}
+      </div>
       
       {loading && <div className={styles.loading}>Loading Stream...</div>}
       {error && <div className={styles.loading}>{error}</div>}

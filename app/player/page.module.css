@@ -15,11 +15,18 @@
   object-fit: contain;
 }
 
-.backButton {
+.topBar {
   position: absolute;
   top: 2rem;
   left: 2rem;
+  right: 2rem;
   z-index: 10;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.backButton {
   background: rgba(0, 0, 0, 0.5);
   color: white;
   padding: 10px 16px;
@@ -31,6 +38,28 @@
   transition: background var(--transition-speed);
   border: none;
   cursor: pointer;
+}
+
+.externalPlayers {
+  display: flex;
+  gap: 12px;
+}
+
+.extBtn {
+  background: rgba(229, 9, 20, 0.8);
+  color: white;
+  padding: 10px 16px;
+  border-radius: 8px;
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 500;
+  backdrop-filter: blur(5px);
+  transition: all 0.2s ease;
+}
+
+.extBtn:hover {
+  background: red;
+  transform: scale(1.05);
 }
 
 .backButton:hover {
