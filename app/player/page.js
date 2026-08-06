@@ -76,8 +76,9 @@ function PlayerContent() {
         const url = getStreamUrl(account.server, account.username, account.password, type, streamId, ext);
         setStreamUrl(url);
         
-        const rawUrl = url.replace(account.server, 'http://vip.psmarters.xyz:8080');
-        setDirectUrl(rawUrl);
+        // VLC'nin User-Agent'i IPTV saglayicisi tarafindan engellendigi icin 
+        // dogrudan proxy uzerinden gecmesini sagliyoruz. Proxy User-Agent'i Chrome yapiyor.
+        setDirectUrl(url);
 
         if (type !== 'live') {
           // Filmler ve Diziler web tarayicilarinda AC3 ses destegi olmadigi ve mkv oynatamadigi icin zorunlu harici oynaticiya atilir
