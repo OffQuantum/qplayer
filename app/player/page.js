@@ -30,6 +30,7 @@ function PlayerContent() {
   const [streamUrl, setStreamUrl] = useState('');
   const [directUrl, setDirectUrl] = useState('');
   const [externalPlayer, setExternalPlayer] = useState(null);
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     if (!streamId || !type) {
@@ -176,6 +177,12 @@ function PlayerContent() {
     }
   };
 
+  const handleCopy = () => {
+    navigator.clipboard.writeText(directUrl);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
   return (
     <div className={styles.container}>
       <div className={styles.topBar}>
@@ -185,7 +192,10 @@ function PlayerContent() {
         {directUrl && !externalPlayer && (
           <div className={styles.externalPlayers}>
             <a href={`vlc://${directUrl}`} onClick={() => setExternalPlayer('VLC')} className={styles.extBtn}>VLC ile Aç</a>
-            <a href={`iina://weblink?url=${directUrl}`} onClick={() => setExternalPlayer('IINA')} className={styles.extBtn}>IINA (Mac) ile Aç</a>
+            <a href={`iina://weblink?url=${directUrl}`} onClick={() => setExternalPlayer('IINA')} className={styles.extBtn}>IINA (Mac)</a>
+            <button onClick={handleCopy} className={styles.extBtn} style={{background: '#333'}}>
+              {copied ? 'Kopyalandı!' : 'Linki Kopyala (Windows)'}
+            </button>
           </div>
         )}
       </div>
@@ -197,9 +207,12 @@ function PlayerContent() {
         <div className={styles.externalPlayerMessage}>
           <h2>Harici Oynatıcı Gerekiyor</h2>
           <p>Filmler ve Diziler web tarayıcılarındaki ses kısıtlamaları (Dolby/AC3) ve MKV uyumsuzluğu nedeniyle yalnızca harici oynatıcılarda açılabilir.</p>
-          <div style={{display: 'flex', gap: '10px', marginTop: '10px'}}>
+          <div style={{display: 'flex', gap: '10px', marginTop: '10px', flexWrap: 'wrap', justifyContent: 'center'}}>
             <a href={`vlc://${directUrl}`} onClick={() => setExternalPlayer('VLC')} className={styles.extBtn}>VLC ile Aç</a>
-            <a href={`iina://weblink?url=${directUrl}`} onClick={() => setExternalPlayer('IINA')} className={styles.extBtn}>IINA (Mac) ile Aç</a>
+            <a href={`iina://weblink?url=${directUrl}`} onClick={() => setExternalPlayer('IINA')} className={styles.extBtn}>IINA (Mac)</a>
+            <button onClick={handleCopy} className={styles.extBtn} style={{background: '#333'}}>
+              {copied ? 'Kopyalandı!' : 'Linki Kopyala (Windows)'}
+            </button>
           </div>
         </div>
       )}
@@ -208,14 +221,19 @@ function PlayerContent() {
         <div className={styles.externalPlayerMessage}>
           <h2>Bu medya {externalPlayer} ile oynatılıyor</h2>
           <p>Harici oynatıcı uygulamanız açılmış olmalı.</p>
-          <a href={externalPlayer === 'VLC' ? `vlc://${directUrl}` : `iina://weblink?url=${directUrl}`} className={styles.extBtn}>
-            Açılmadı mı? Tekrar Dene
-          </a>
-          {type === 'live' && (
-            <button onClick={() => setExternalPlayer(null)} className={styles.extBtn} style={{marginTop: '10px', background: 'transparent', border: '1px solid white'}}>
-              Web Oynatıcıya Dön
+          <div style={{display: 'flex', gap: '10px', marginTop: '10px', flexWrap: 'wrap', justifyContent: 'center'}}>
+            <a href={externalPlayer === 'VLC' ? `vlc://${directUrl}` : `iina://weblink?url=${directUrl}`} className={styles.extBtn}>
+              Açılmadı mı? Tekrar Dene
+            </a>
+            <button onClick={handleCopy} className={styles.extBtn} style={{background: '#333'}}>
+              {copied ? 'Kopyalandı!' : 'Linki Kopyala'}
             </button>
-          )}
+            {type === 'live' && (
+              <button onClick={() => setExternalPlayer(null)} className={styles.extBtn} style={{background: 'transparent', border: '1px solid white'}}>
+                Web Oynatıcıya Dön
+              </button>
+            )}
+          </div>
         </div>
       )}
       
